@@ -128,6 +128,7 @@ const struct option *gamescope_options = (struct option[]){
 	{ "disable-xres", no_argument, nullptr, 'x' },
 	{ "fade-out-duration", required_argument, nullptr, 0 },
 	{ "force-orientation", required_argument, nullptr, 0 },
+	{ "shader-orientation", required_argument, nullptr, 0 },
 	{ "force-external-orientation", required_argument, nullptr, 0 },
 	{ "force-panel-type", required_argument, nullptr, 0 },
 	{ "force-windows-fullscreen", no_argument, nullptr, 0 },
@@ -199,6 +200,7 @@ const char usage[] =
 	"  --force-orientation            rotate the internal display (left, right, normal, upsidedown)\n"
 	"  --force-external-orientation   rotate the external display (left, right, normal, upsidedown)\n"
 	"  --force-panel-type             force gamescope to treat the display as either internal or external\n"
+	"  --shader-orientation            rotate the internal display (left, right, normal, upsidedown) with a shader\n"
 	"  --force-windows-fullscreen     force windows inside of gamescope to be the size of the nested display (fullscreen)\n"
 	"  --cursor-scale-height          if specified, sets a base output height to linearly scale the cursor against.\n"
 	"  --hdr-enabled                  enable HDR output (needs Gamescope WSI layer enabled for support from clients)\n"
@@ -358,6 +360,7 @@ static gamescope::GamescopeModeGeneration parse_gamescope_mode_generation( const
 	}
 }
 
+bool g_bEnableRotationShader = false;
 GamescopePanelOrientation g_DesiredInternalOrientation = GAMESCOPE_PANEL_ORIENTATION_AUTO;
 static GamescopePanelOrientation force_orientation(const char *str)
 {
@@ -826,6 +829,9 @@ int main(int argc, char **argv)
 					g_ForcedScreenType = force_panel_type( optarg );
 				} else if (strcmp(opt_name, "custom-refresh-rates") == 0) {
 					g_customRefreshRates = parse_custom_refresh_rates( optarg );
+				} else if (strcmp(opt_name, "shader-orientation") == 0) {
+					g_bEnableRotationShader = true;
+					g_DesiredInternalOrientation = force_orientation( optarg );
 				} else if (strcmp(opt_name, "sharpness") == 0 ||
 						   strcmp(opt_name, "fsr-sharpness") == 0) {
 					g_upscaleFilterSharpness = atoi( optarg );

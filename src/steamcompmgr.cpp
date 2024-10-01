@@ -5841,7 +5841,8 @@ handle_property_notify(xwayland_ctx_t *ctx, XPropertyEvent *ev)
 	if (ev->atom == ctx->atoms.gamescopeReshadeEffect)
 	{
 		std::string path = get_string_prop( ctx, ctx->root, ctx->atoms.gamescopeReshadeEffect );
-		g_reshade_effect = path;
+		if (!path.empty())
+			g_reshade_effect = path;
 	}
 	if (ev->atom == ctx->atoms.gamescopeDisplayDynamicRefreshBasedOnGamePresence)
 	{

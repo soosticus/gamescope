@@ -40,6 +40,8 @@ static const uint32_t g_zposMuraCorrection = 5;
 
 extern bool g_bHDRItmEnable;
 extern bool g_bForceHDRSupportDebug;
+extern bool g_bEnableRotationShader;
+extern GamescopePanelOrientation g_DesiredInternalOrientation;
 
 extern EStreamColorspace g_ForcedNV12ColorSpace;
 

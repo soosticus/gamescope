@@ -65,6 +65,8 @@ public:
 
     virtual void update(void* mappedBuffer) = 0;
 
+    virtual std::string name() const { return m_info.name; }
+
 protected:
 
     void copy(void* mappedBuffer, const void* data, size_t size);
@@ -207,6 +209,14 @@ public:
     DataUniform(reshadefx::uniform_info uniformInfo);
     virtual void update(void* mappedBuffer) override;
     virtual ~DataUniform();
+};
+
+class RotationUniform : public ReshadeUniform
+{
+public:
+    RotationUniform(reshadefx::uniform_info uniformInfo);
+    virtual void update(void* mappedBuffer) override;
+    virtual ~RotationUniform();
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -606,6 +616,37 @@ DataUniform::~DataUniform()
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+RotationUniform::RotationUniform(reshadefx::uniform_info uniformInfo)
+    : ReshadeUniform(uniformInfo)
+{
+}
+void RotationUniform::update(void* mappedBuffer)
+{
+    int32_t orientation = 0;
+    if (g_bEnableRotationShader) {
+        switch(g_DesiredInternalOrientation) {
+            case GAMESCOPE_PANEL_ORIENTATION_90:
+                orientation = 90;
+                break;
+            case GAMESCOPE_PANEL_ORIENTATION_180:
+                orientation = 180;
+                break;
+            case GAMESCOPE_PANEL_ORIENTATION_270:
+                orientation = 270;
+                break;
+            case GAMESCOPE_PANEL_ORIENTATION_0:
+            default:
+                orientation = 0;
+                break;
+        }
+    }
+    copy(mappedBuffer, &orientation);
+}
+RotationUniform::~RotationUniform()
+{
+}
+
 static std::vector<std::shared_ptr<ReshadeUniform>> createReshadeUniforms(const reshadefx::module& module)
 {
     std::vector<std::shared_ptr<ReshadeUniform>> uniforms;
@@ -663,6 +704,10 @@ static std::vector<std::shared_ptr<ReshadeUniform>> createReshadeUniforms(const 
             else if (source == "bufready_depth")
             {
                 uniforms.push_back(std::make_shared<DepthUniform>(uniform));
+            }
+            else if (source == "rotation")
+            {
+                uniforms.push_back(std::make_shared<RotationUniform>(uniform));
             }
             else if (!source.empty())
             {
@@ -1196,7 +1241,7 @@ bool ReshadeEffectPipeline::init(CVulkanDevice *device, const ReshadeEffectKey &
             device->submitInternal(&*m_cmdBuffer);
             device->waitIdle(false);
         }
-
+        
         m_textures.emplace_back(std::move(texture));
     }
 
